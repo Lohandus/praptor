@@ -45,7 +45,7 @@ class Results
      * @param int $status
      * @return TemplateResult
      */
-    public static function template($templateFile, $templateContext, $status = 200)
+    public static function template($templateFile, $templateContext = array(), $status = 200)
     {
         return new TemplateResult($templateFile, $templateContext, $status);
     }

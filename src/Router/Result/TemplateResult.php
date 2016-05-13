@@ -27,7 +27,7 @@ class TemplateResult implements Result
      * @param array $templateContext
      * @param int $status
      */
-    public function __construct($templateFile, $templateContext, $status = 200)
+    public function __construct($templateFile, $templateContext = array(), $status = 200)
     {
         $this->templateFile = $templateFile;
         $this->templateContext = $templateContext;

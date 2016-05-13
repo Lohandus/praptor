@@ -1,9 +1,8 @@
 <?php
-namespace PRaptor\User;
+namespace PRaptorDemo\User;
 
 use PRaptor\Router\Result\JsonResult;
 use PRaptor\Router\Result\Results;
-use Twig_Environment;
 
 /**
  * @controller('path' => '/users')
@@ -15,7 +14,7 @@ class UsersController
      */
     public function listUsers()
     {
-        return Results::template('User/users.html', array(
+        return Results::template('User/users-page.html.twig', array(
             'name' => 'Fabien'
         ));
     }

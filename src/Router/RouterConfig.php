@@ -20,7 +20,7 @@ class RouterConfig
     public $templateDir;
     
     /**
-     * @var boolean 
+     * @var boolean When true, all caches are disabled.
      */
     public $devMode = false;
 }
