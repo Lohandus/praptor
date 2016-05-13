@@ -1,0 +1,10 @@
+{
+    "require": {
+        "mindplay/annotations": "^1.3",
+        "nikic/fast-route": "^1.0",
+        "twig/twig": "~1.0"
+    },
+    "autoload": {
+        "psr-4": {"PRaptor\\": "src"}
+    }
+}
