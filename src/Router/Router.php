@@ -5,9 +5,12 @@ use FastRoute\Dispatcher;
 use FastRoute\RouteCollector;
 use mindplay\annotations\AnnotationCache;
 use mindplay\annotations\Annotations;
+use PRaptor\Router\Interceptor\Interceptor;
+use PRaptor\Router\Interceptor\InterceptorStack;
 use PRaptor\Router\Result\Result;
-use PRaptor\Router\Result\ResultContext;
 use PRaptor\Router\Result\Results;
+use ReflectionMethod;
+use ReflectionParameter;
 
 class Router
 {
@@ -27,17 +30,30 @@ class Router
     private $dispatcher;
 
     /**
+     * @var Interceptor[]
+     */
+    private $interceptors;
+
+    /**
      * Router constructor.
      * @param RouterConfig $config
-     * @param array $controllers
+     * @param string[] $controllers
      */
-    public function __construct($config, $controllers)
+    public function __construct(RouterConfig $config, array $controllers)
     {
         $this->config = $config;
         $this->controllers = $controllers;
 
         $this->configureAnnotations();
         $this->configureRouterDispatcher();
+    }
+
+    /**
+     * @param Interceptor $interceptor
+     */
+    public function addInterceptor(Interceptor $interceptor)
+    {
+        $this->interceptors[] = $interceptor;
     }
 
     private function configureAnnotations()
@@ -71,42 +87,73 @@ class Router
 
         /** @var Result $result */
         $result = null;
+        $requestContext = null;
 
         switch ($routeInfo[0]) {
             case Dispatcher::NOT_FOUND:
+                $requestContext = $this->buildRequestContext($uri);
                 $result = Results::http("Not Found", 404);
                 break;
 
             case Dispatcher::METHOD_NOT_ALLOWED:
                 $allowedMethods = $routeInfo[1];
+                $requestContext = $this->buildRequestContext($uri);
                 $result = Results::http("Not Allowed", 405)->header("Allow: " . implode(", ", $allowedMethods));
                 break;
 
             case Dispatcher::FOUND:
                 $handler = $routeInfo[1];
                 $vars = $routeInfo[2];
-                $result = $this->processRequest($handler, $vars);
+                $requestContext = $this->buildRequestContext($uri, $handler);
+                $result = $this->processRequest($handler, $vars, $requestContext);
                 break;
         }
-        
-        $this->processResult($result);
+
+        $result->respond($requestContext);
     }
 
-    private function processRequest($handler, $pathParams)
+    /**
+     * @param string $uri
+     * @param string $handler
+     * @return RequestContext
+     */
+    private function buildRequestContext($uri, $handler = null)
     {
-        $parts = explode('::', $handler);
-        $class = $parts[0];
-        $method = $parts[1];
-
-        $reflectionMethod = new \ReflectionMethod($class, $method);
-        $methodArgs = [];
-
-        foreach ($reflectionMethod->getParameters() as $reflectionParam) {
-            $methodArgs[] = $this->getParamValue($reflectionParam, $pathParams);
+        $reflectionMethod = null;
+        if ($handler !== null) {
+            $parts = explode('::', $handler);
+            $class = $parts[0];
+            $method = $parts[1];
+            $reflectionMethod = new ReflectionMethod($class, $method);
         }
 
-        $controller = new $class();
-        $result = $reflectionMethod->invokeArgs($controller, $methodArgs);
+        $request = new RequestContext();
+        $request->config = $this->config;
+        $request->controllerMethod = $reflectionMethod;
+        $request->requestUri = $uri;
+
+        return $request;
+    }
+
+    /**
+     * @param string $handler
+     * @param array $pathParams
+     * @param RequestContext $requestContext
+     * @return Result
+     * @throws RouterConfigurationException
+     */
+    private function processRequest($handler, array &$pathParams, RequestContext $requestContext)
+    {
+        $reflectionMethod = $requestContext->controllerMethod;
+
+        $invokeControllerMethod = function(&$injections) use ($reflectionMethod, &$pathParams) {
+            $controller = $this->instantiateController($reflectionMethod, $injections);
+            $methodArgs = $this->getMethodArgs($reflectionMethod, $pathParams);
+            return $reflectionMethod->invokeArgs($controller, $methodArgs);
+        };
+
+        $interceptorStack = new InterceptorStack($this->interceptors, $requestContext, $invokeControllerMethod);
+        $result = $interceptorStack->next();
 
         if ($result === null)
             return Results::nothing();
@@ -116,24 +163,65 @@ class Router
 
         throw new RouterConfigurationException("Controller method $handler should return an instance of Router\\Result");
     }
-
+    
     /**
-     * @param Result $result
+     * @param ReflectionMethod $reflectionMethod
+     * @param array $injections
+     * @return mixed
      */
-    private function processResult($result)
+    private function instantiateController(ReflectionMethod $reflectionMethod, array &$injections)
     {
-        $context = new ResultContext();
-        $context->config = $this->config;
+        $reflectionClass = $reflectionMethod->getDeclaringClass();
+        $reflectionConstructor = $reflectionClass->getConstructor();
+        $constructorArgs = array();
 
-        $result->respond($context);
+        if ($reflectionConstructor !== null) {
+            foreach ($reflectionConstructor->getParameters() as $reflectionParam)
+                $constructorArgs[] = $this->getConstructorParamValue($reflectionParam, $injections);
+        }
+
+        return $reflectionClass->newInstanceArgs($constructorArgs);
     }
 
     /**
-     * @param \ReflectionParameter $reflectionParam
+     * @param ReflectionParameter $reflectionParam
+     * @param array $injections
+     * @return mixed
+     */
+    private function getConstructorParamValue(ReflectionParameter $reflectionParam, array &$injections)
+    {
+        $paramName = $reflectionParam->getName();
+        
+        if (array_key_exists($paramName, $injections))
+            return $injections[$paramName];
+
+        if ($reflectionParam->isDefaultValueAvailable())
+            return $reflectionParam->getDefaultValue();
+
+        return null;
+    }
+    
+    /**
+     * @param ReflectionMethod $reflectionMethod
+     * @param array $pathParams
+     * @return array
+     */
+    private function getMethodArgs(ReflectionMethod $reflectionMethod, array $pathParams)
+    {
+        $methodArgs = [];
+
+        foreach ($reflectionMethod->getParameters() as $reflectionParam) {
+            $methodArgs[] = $this->getParamValue($reflectionParam, $pathParams);
+        }
+        return $methodArgs;
+    }
+
+    /**
+     * @param ReflectionParameter $reflectionParam
      * @param array $pathParams
      * @return mixed
      */
-    private function getParamValue($reflectionParam, $pathParams)
+    private function getParamValue(ReflectionParameter $reflectionParam, array $pathParams)
     {
         $paramName = $reflectionParam->getName();
 

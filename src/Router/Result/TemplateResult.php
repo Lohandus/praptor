@@ -1,6 +1,7 @@
 <?php
 namespace PRaptor\Router\Result;
 
+use PRaptor\Router\RequestContext;
 use Twig_Environment;
 use Twig_Loader_Filesystem;
 
@@ -34,7 +35,7 @@ class TemplateResult implements Result
         $this->status = $status;
     }
 
-    public function respond(ResultContext $context)
+    public function respond(RequestContext $context)
     {
         $twig = $this->getTwig($context);
         $body = $twig->render($this->templateFile, $this->templateContext);
@@ -44,10 +45,10 @@ class TemplateResult implements Result
     }
 
     /**
-     * @param ResultContext $context
+     * @param RequestContext $context
      * @return Twig_Environment
      */
-    private function getTwig(ResultContext $context)
+    private function getTwig(RequestContext $context)
     {
         $loader = new Twig_Loader_Filesystem($context->config->templateDir);
 

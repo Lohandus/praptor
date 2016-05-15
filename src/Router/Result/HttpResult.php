@@ -2,6 +2,8 @@
 namespace PRaptor\Router\Result;
 
 
+use PRaptor\Router\RequestContext;
+
 class HttpResult implements Result
 {
     /**
@@ -46,7 +48,7 @@ class HttpResult implements Result
         return $this;
     }
 
-    public function respond(ResultContext $context)
+    public function respond(RequestContext $context)
     {
         http_response_code($this->status);
         header('Content-Type: ' . $this->contentType);

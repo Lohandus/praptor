@@ -3,7 +3,9 @@
 namespace PRaptor\Router\Result;
 
 
+use PRaptor\Router\RequestContext;
+
 interface Result
 {
-    public function respond(ResultContext $context);
+    public function respond(RequestContext $context);
 }
