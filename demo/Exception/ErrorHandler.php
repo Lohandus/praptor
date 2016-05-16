@@ -2,12 +2,11 @@
 namespace PRaptorDemo\Exception;
 
 use Exception;
-use PRaptor\Router\Interceptor\Interceptor;
-use PRaptor\Router\Interceptor\InterceptorStack;
-use PRaptor\Router\RequestContext;
-use PRaptor\Router\Result\Result;
-use PRaptor\Router\Result\Results;
-use TreklinkDemo\Exception\BusinessException;
+use PRaptor\Interceptor\Interceptor;
+use PRaptor\Interceptor\InterceptorStack;
+use PRaptor\Request\RequestContext;
+use PRaptor\Result\Result;
+use PRaptor\Result\Results;
 
 class ErrorHandler implements Interceptor
 {

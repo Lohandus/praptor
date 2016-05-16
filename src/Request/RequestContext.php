@@ -1,6 +1,7 @@
 <?php
-namespace PRaptor\Router;
+namespace PRaptor\Request;
 
+use PRaptor\RouterOptions;
 use ReflectionMethod;
 
 class RequestContext

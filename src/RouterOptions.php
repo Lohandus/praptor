@@ -1,13 +1,12 @@
 <?php
-namespace PRaptor\Router;
-
+namespace PRaptor;
 
 class RouterOptions
 {
     /**
-     * @var string
+     * @var string If you site is available at 'http://localhost/my-site/', basePath should be 'my-site'.
      */
-    public $baseUrl;
+    public $basePath = '';
 
     /**
      * @var string

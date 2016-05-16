@@ -1,5 +1,5 @@
 <?php
-namespace PRaptor\Router;
+namespace PRaptor;
 
 use Exception;
 

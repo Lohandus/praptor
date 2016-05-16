@@ -1,7 +1,7 @@
 <?php
 
-use PRaptor\Router\Router;
-use PRaptor\Router\RouterOptions;
+use PRaptor\Router;
+use PRaptor\RouterOptions;
 use PRaptorDemo\Exception\ErrorHandler;
 use PRaptorDemo\Security\AuthorizationInterceptor;
 use PRaptorDemo\Security\LogInterceptor;
@@ -12,7 +12,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 session_start();
 
 $options = new RouterOptions();
-$options->baseUrl     = 'http://localhost:8080';
+$options->basePath    = '';
 $options->cacheDir    = __DIR__ . '/runtime';
 $options->templateDir = __DIR__ . '/';
 $options->devMode     = true;

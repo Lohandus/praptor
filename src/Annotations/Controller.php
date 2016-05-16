@@ -1,5 +1,5 @@
 <?php
-namespace PRaptor\Router\Annotations;
+namespace PRaptor\Annotations;
 
 use mindplay\annotations\Annotation;
 

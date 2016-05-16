@@ -1,13 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: lohandus
- * Date: 12/05/16
- * Time: 17:26
- */
-
-namespace PRaptor\Router\Annotations;
-
+namespace PRaptor\Annotations;
 
 use mindplay\annotations\Annotation;
 

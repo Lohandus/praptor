@@ -1,8 +1,8 @@
 <?php
-namespace PRaptor\Router\Interceptor;
+namespace PRaptor\Interceptor;
 
-use PRaptor\Router\RequestContext;
-use PRaptor\Router\Result\Result;
+use PRaptor\Request\RequestContext;
+use PRaptor\Result\Result;
 
 class InterceptorStack
 {

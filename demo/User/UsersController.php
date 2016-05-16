@@ -1,9 +1,8 @@
 <?php
 namespace PRaptorDemo\User;
 
-use PRaptor\Router\Result\HttpResult;
-use PRaptor\Router\Result\JsonResult;
-use PRaptor\Router\Result\Results;
+use PRaptor\Result\Result;
+use PRaptor\Result\Results;
 
 /**
  * @public-access
@@ -40,7 +39,7 @@ class UsersController
      *
      * @param int $id 
      * @param string $name
-     * @return JsonResult
+     * @return Result
      */
     public function getUser($id, $name = 'Jones')
     {
@@ -56,7 +55,7 @@ class UsersController
     /**
      * @get('path' => '/fake-login')
      * @param string $name
-     * @return HttpResult
+     * @return Result
      */
     public function fakeLogin($name)
     {

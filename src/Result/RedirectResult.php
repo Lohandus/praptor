@@ -1,8 +1,7 @@
 <?php
-namespace PRaptor\Router\Result;
+namespace PRaptor\Result;
 
-
-use PRaptor\Router\RequestContext;
+use PRaptor\Request\RequestContext;
 
 class RedirectResult implements Result
 {
@@ -21,7 +20,7 @@ class RedirectResult implements Result
 
     public function respond(RequestContext $context)
     {
-        $fullUrl = strpos($this->url, '/') === 0 ? $context->routerOptions->baseUrl . $this->url : $this->url;
+        $fullUrl = strpos($this->url, '/') === 0 ? $context->routerOptions->basePath . $this->url : $this->url;
         header("Location: $fullUrl");
     }
 }

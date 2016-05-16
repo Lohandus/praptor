@@ -1,13 +1,13 @@
 <?php
-namespace PRaptor\Router;
+namespace PRaptor;
 
 use FastRoute\RouteCollector;
 use mindplay\annotations\Annotations;
-use PRaptor\Router\Annotations\Controller;
-use PRaptor\Router\Annotations\Delete;
-use PRaptor\Router\Annotations\Get;
-use PRaptor\Router\Annotations\HttpVerb;
-use PRaptor\Router\Annotations\Post;
+use PRaptor\Annotations\Controller;
+use PRaptor\Annotations\Delete;
+use PRaptor\Annotations\Get;
+use PRaptor\Annotations\HttpVerb;
+use PRaptor\Annotations\Post;
 use ReflectionClass;
 
 class ControllerConfigurator
@@ -24,6 +24,9 @@ class ControllerConfigurator
         Delete::class => 'DELETE'
     ];
 
+    /**
+     * @param RouteCollector $routeCollector
+     */
     public function __construct(RouteCollector $routeCollector)
     {
         $this->routeCollector = $routeCollector;

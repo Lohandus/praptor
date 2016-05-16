@@ -1,8 +1,7 @@
 <?php
-namespace PRaptor\Router\Result;
+namespace PRaptor\Result;
 
-
-use PRaptor\Router\RequestContext;
+use PRaptor\Request\RequestContext;
 
 class NothingResult implements Result
 {

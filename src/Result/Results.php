@@ -1,6 +1,5 @@
 <?php
-namespace PRaptor\Router\Result;
-
+namespace PRaptor\Result;
 
 class Results
 {

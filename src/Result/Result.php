@@ -1,9 +1,7 @@
 <?php
+namespace PRaptor\Result;
 
-namespace PRaptor\Router\Result;
-
-
-use PRaptor\Router\RequestContext;
+use PRaptor\Request\RequestContext;
 
 interface Result
 {

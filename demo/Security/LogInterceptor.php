@@ -1,10 +1,10 @@
 <?php
 namespace PRaptorDemo\Security;
 
-use PRaptor\Router\Interceptor\Interceptor;
-use PRaptor\Router\Interceptor\InterceptorStack;
-use PRaptor\Router\RequestContext;
-use PRaptor\Router\Result\Result;
+use PRaptor\Interceptor\Interceptor;
+use PRaptor\Interceptor\InterceptorStack;
+use PRaptor\Request\RequestContext;
+use PRaptor\Result\Result;
 
 class LogInterceptor implements Interceptor
 {

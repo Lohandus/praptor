@@ -1,7 +1,7 @@
 <?php
-namespace PRaptor\Router\Result;
+namespace PRaptor\Result;
 
-use PRaptor\Router\RequestContext;
+use PRaptor\Request\RequestContext;
 use Twig_Environment;
 use Twig_Loader_Filesystem;
 

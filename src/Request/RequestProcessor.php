@@ -1,10 +1,11 @@
 <?php
-namespace PRaptor\Router;
+namespace PRaptor\Request;
 
-use PRaptor\Router\Interceptor\Interceptor;
-use PRaptor\Router\Interceptor\InterceptorStack;
-use PRaptor\Router\Result\Result;
-use PRaptor\Router\Result\Results;
+use PRaptor\Interceptor\Interceptor;
+use PRaptor\Interceptor\InterceptorStack;
+use PRaptor\Result\Result;
+use PRaptor\Result\Results;
+use PRaptor\RouterConfigurationException;
 use ReflectionMethod;
 use ReflectionParameter;
 

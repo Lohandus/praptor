@@ -2,13 +2,13 @@
 namespace PRaptorDemo\Security;
 
 use mindplay\annotations\Annotations;
-use PRaptor\Router\Interceptor\InterceptorStack;
-use PRaptor\Router\RequestContext;
-use PRaptor\Router\Result\Result;
-use PRaptor\Router\Result\Results;
+use PRaptor\Interceptor\Interceptor;
+use PRaptor\Interceptor\InterceptorStack;
+use PRaptor\Request\RequestContext;
+use PRaptor\Result\Result;
+use PRaptor\Result\Results;
 
-
-class AuthorizationInterceptor implements \PRaptor\Router\Interceptor\Interceptor
+class AuthorizationInterceptor implements Interceptor
 {
     /**
      * @param RequestContext $requestContext
