@@ -5,6 +5,7 @@ use FastRoute\Dispatcher;
 use FastRoute\RouteCollector;
 use mindplay\annotations\AnnotationCache;
 use mindplay\annotations\Annotations;
+use PRaptor\Router\Annotations\RouterAnnotations;
 use PRaptor\Router\Interceptor\Interceptor;
 use PRaptor\Router\Result\Result;
 use PRaptor\Router\Result\Results;
@@ -13,9 +14,9 @@ use ReflectionMethod;
 class Router
 {
     /**
-     * @var RouterConfig
+     * @var RouterOptions
      */
-    private $config;
+    private $options;
 
     /**
      * @var string[]
@@ -28,11 +29,11 @@ class Router
     private $interceptors = [];
 
     /**
-     * @param RouterConfig $config
+     * @param RouterOptions $options
      */
-    public function __construct(RouterConfig $config)
+    public function __construct(RouterOptions $options)
     {
-        $this->config = $config;
+        $this->options = $options;
         $this->configureAnnotations();
     }
 
@@ -54,8 +55,8 @@ class Router
 
     private function configureAnnotations()
     {
-        Annotations::$config['cache'] = new AnnotationCache($this->config->cacheDir);
-        \PRaptor\Router\Annotations\Package::register();
+        Annotations::$config['cache'] = new AnnotationCache($this->options->cacheDir);
+        RouterAnnotations::register();
     }
 
     /**
@@ -81,8 +82,8 @@ class Router
         };
 
         $options = [
-            'cacheFile' => $this->config->cacheDir . '/route.cache',
-            'cacheDisabled' => $this->config->devMode
+            'cacheFile' => $this->options->cacheDir . '/route.cache',
+            'cacheDisabled' => $this->options->devMode
         ];
 
         return \FastRoute\cachedDispatcher($routeDefinitionCallback, $options);
@@ -143,11 +144,9 @@ class Router
             $request->controllerMethodFullName = $handler;
         }
         
-        $request->config = $this->config;
+        $request->routerOptions = $this->options;
         $request->requestUri = $uri;
 
         return $request;
     }
 }
-
-class RouterConfigurationException extends \Exception {}

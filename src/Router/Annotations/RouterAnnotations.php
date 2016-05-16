@@ -3,7 +3,7 @@ namespace PRaptor\Router\Annotations;
 
 use mindplay\annotations\Annotations;
 
-abstract class Package
+abstract class RouterAnnotations
 {
     public static function register()
     {

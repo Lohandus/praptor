@@ -6,9 +6,9 @@ use ReflectionMethod;
 class RequestContext
 {
     /**
-     * @var RouterConfig
+     * @var RouterOptions
      */
-    public $config;
+    public $routerOptions;
 
     /**
      * @var ReflectionMethod

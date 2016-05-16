@@ -15,7 +15,7 @@ class LogInterceptor implements Interceptor
      */
     public function intercept(RequestContext $requestContext, InterceptorStack $stack)
     {
-        if ($requestContext->config->devMode)
+        if ($requestContext->routerOptions->devMode)
             error_log("### Request $requestContext->requestUri > $requestContext->controllerMethodFullName");
 
         return $stack->next();

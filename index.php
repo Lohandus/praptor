@@ -1,7 +1,7 @@
 <?php
 
 use PRaptor\Router\Router;
-use PRaptor\Router\RouterConfig;
+use PRaptor\Router\RouterOptions;
 use PRaptorDemo\Exception\ErrorHandler;
 use PRaptorDemo\Security\AuthorizationInterceptor;
 use PRaptorDemo\Security\LogInterceptor;
@@ -11,13 +11,13 @@ require_once 'vendor/autoload.php';
 
 session_start();
 
-$config = new RouterConfig();
-$config->baseUrl     = 'http://localhost:8080';
-$config->cacheDir    = __DIR__ . '/runtime';
-$config->templateDir = __DIR__ . '/demo';
-$config->devMode     = true;
+$options = new RouterOptions();
+$options->baseUrl     = 'http://localhost:8080';
+$options->cacheDir    = __DIR__ . '/runtime';
+$options->templateDir = __DIR__ . '/demo';
+$options->devMode     = true;
 
-$router = new Router($config);
+$router = new Router($options);
 
 $router->registerCustomAnnotations([
     'public-access' => PublicAccess::class

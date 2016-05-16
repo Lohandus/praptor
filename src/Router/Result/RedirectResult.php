@@ -21,7 +21,7 @@ class RedirectResult implements Result
 
     public function respond(RequestContext $context)
     {
-        $fullUrl = strpos($this->url, '/') === 0 ? $context->config->baseUrl . $this->url : $this->url;
+        $fullUrl = strpos($this->url, '/') === 0 ? $context->routerOptions->baseUrl . $this->url : $this->url;
         header("Location: $fullUrl");
     }
 }

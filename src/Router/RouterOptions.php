@@ -2,7 +2,7 @@
 namespace PRaptor\Router;
 
 
-class RouterConfig
+class RouterOptions
 {
     /**
      * @var string

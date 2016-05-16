@@ -50,11 +50,11 @@ class TemplateResult implements Result
      */
     private function getTwig(RequestContext $context)
     {
-        $loader = new Twig_Loader_Filesystem($context->config->templateDir);
+        $loader = new Twig_Loader_Filesystem($context->routerOptions->templateDir);
 
         return new Twig_Environment($loader, array(
-            'cache' => $context->config->cacheDir . '/twig',
-            'auto_reload' => $context->config->devMode
+            'cache' => $context->routerOptions->cacheDir . '/twig',
+            'auto_reload' => $context->routerOptions->devMode
         ));
     }
 }
