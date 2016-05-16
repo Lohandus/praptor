@@ -77,7 +77,7 @@ class Router
     private function configureRouterDispatcher()
     {
         $routeDefinitionCallback = function (RouteCollector $routeCollector) {
-            $configurator = new ControllerConfigurator($routeCollector);
+            $configurator = new ControllerConfigurator($this->options->basePath, $routeCollector);
             
             foreach ($this->controllers as $controller)
                 $configurator->configure($controller);

@@ -13,6 +13,11 @@ use ReflectionClass;
 class ControllerConfigurator
 {
     /**
+     * @var string
+     */
+    private $basePath;
+
+    /**
      * @var RouteCollector
      */
     private $routeCollector;
@@ -25,11 +30,13 @@ class ControllerConfigurator
     ];
 
     /**
+     * @param string $basePath
      * @param RouteCollector $routeCollector
      */
-    public function __construct(RouteCollector $routeCollector)
+    public function __construct($basePath, RouteCollector $routeCollector)
     {
         $this->routeCollector = $routeCollector;
+        $this->basePath = $basePath;
     }
 
     /**
@@ -77,7 +84,7 @@ class ControllerConfigurator
             return;
 
         $methodPath = $httpVerbAnnotation->path;
-        $fullPath = $controllerPath . $methodPath;
+        $fullPath = $this->basePath . $controllerPath . $methodPath;
         $methodFullName = $method->getDeclaringClass()->getName() . '::' . $method->getName();
         $httpVerb = $this->httpVerbsByAnnotations[get_class($httpVerbAnnotation)];
 

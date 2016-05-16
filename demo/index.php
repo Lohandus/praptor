@@ -12,7 +12,6 @@ require_once __DIR__ . '/../vendor/autoload.php';
 session_start();
 
 $options = new RouterOptions();
-$options->basePath    = '';
 $options->cacheDir    = __DIR__ . '/runtime';
 $options->templateDir = __DIR__ . '/';
 $options->devMode     = true;
