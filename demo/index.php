@@ -7,14 +7,14 @@ use PRaptorDemo\Security\AuthorizationInterceptor;
 use PRaptorDemo\Security\LogInterceptor;
 use PRaptorDemo\Security\PublicAccess;
 
-require_once 'vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 session_start();
 
 $options = new RouterOptions();
 $options->baseUrl     = 'http://localhost:8080';
 $options->cacheDir    = __DIR__ . '/runtime';
-$options->templateDir = __DIR__ . '/demo';
+$options->templateDir = __DIR__ . '/';
 $options->devMode     = true;
 
 $router = new Router($options);

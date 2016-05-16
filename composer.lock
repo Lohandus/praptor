@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "53a0ec405cea26ac228ac80307841a1c",
-    "content-hash": "80d35103fc690fc26a688e906136124d",
+    "hash": "005a670d65075c04c27c21119ed58500",
+    "content-hash": "0556c2897db761e34d3c1165b8a2ccb1",
     "packages": [
         {
             "name": "mindplay/annotations",
@@ -168,6 +168,8 @@
     "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "php": ">=5.6.0"
+    },
     "platform-dev": []
 }
