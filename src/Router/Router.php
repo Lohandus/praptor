@@ -6,11 +6,9 @@ use FastRoute\RouteCollector;
 use mindplay\annotations\AnnotationCache;
 use mindplay\annotations\Annotations;
 use PRaptor\Router\Interceptor\Interceptor;
-use PRaptor\Router\Interceptor\InterceptorStack;
 use PRaptor\Router\Result\Result;
 use PRaptor\Router\Result\Results;
 use ReflectionMethod;
-use ReflectionParameter;
 
 class Router
 {
@@ -20,40 +18,38 @@ class Router
     private $config;
 
     /**
-     * @var array
+     * @var string[]
      */
-    private $controllers;
-
-    /**
-     * @var Dispatcher
-     */
-    private $dispatcher;
+    private $controllers = [];
 
     /**
      * @var Interceptor[]
      */
-    private $interceptors;
+    private $interceptors = [];
 
     /**
-     * Router constructor.
      * @param RouterConfig $config
-     * @param string[] $controllers
      */
-    public function __construct(RouterConfig $config, array $controllers)
+    public function __construct(RouterConfig $config)
     {
         $this->config = $config;
-        $this->controllers = $controllers;
-
         $this->configureAnnotations();
-        $this->configureRouterDispatcher();
     }
 
     /**
-     * @param Interceptor $interceptor
+     * @param string[] $controllers
      */
-    public function addInterceptor(Interceptor $interceptor)
+    public function setControllerClasses(array $controllers)
     {
-        $this->interceptors[] = $interceptor;
+        $this->controllers = $controllers;
+    }
+
+    /**
+     * @param Interceptor[] $interceptors
+     */
+    public function setInterceptors(array $interceptors)
+    {
+        $this->interceptors = $interceptors;
     }
 
     private function configureAnnotations()
@@ -62,6 +58,19 @@ class Router
         \PRaptor\Router\Annotations\Package::register();
     }
 
+    /**
+     * @param array $annotationClassesByName
+     */
+    public function registerCustomAnnotations($annotationClassesByName)
+    {
+        $manager = Annotations::getManager();
+        foreach (array_keys($annotationClassesByName) as $name)
+            $manager->registry[$name] = $annotationClassesByName[$name];
+    }
+    
+    /**
+     * @return Dispatcher
+     */
     private function configureRouterDispatcher()
     {
         $routeDefinitionCallback = function (RouteCollector $routeCollector) {
@@ -76,14 +85,16 @@ class Router
             'cacheDisabled' => $this->config->devMode
         ];
 
-        $this->dispatcher = \FastRoute\cachedDispatcher($routeDefinitionCallback, $options);
+        return \FastRoute\cachedDispatcher($routeDefinitionCallback, $options);
     }
 
     public function dispatch()
     {
         $uri = rawurldecode(strtok($_SERVER['REQUEST_URI'], '?'));
         $httpMethod = $_SERVER['REQUEST_METHOD'];
-        $routeInfo = $this->dispatcher->dispatch($httpMethod, $uri);
+
+        $dispatcher = $this->configureRouterDispatcher();
+        $routeInfo = $dispatcher->dispatch($httpMethod, $uri);
 
         /** @var Result $result */
         $result = null;
@@ -104,8 +115,10 @@ class Router
             case Dispatcher::FOUND:
                 $handler = $routeInfo[1];
                 $vars = $routeInfo[2];
+                
                 $requestContext = $this->buildRequestContext($uri, $handler);
-                $result = $this->processRequest($handler, $vars, $requestContext);
+                $requestProcessor = new RequestProcessor($this->interceptors);
+                $result = $requestProcessor->process($requestContext, $vars);
                 break;
         }
 
@@ -119,122 +132,21 @@ class Router
      */
     private function buildRequestContext($uri, $handler = null)
     {
-        $reflectionMethod = null;
+        $request = new RequestContext();
+        
         if ($handler !== null) {
             $parts = explode('::', $handler);
             $class = $parts[0];
             $method = $parts[1];
-            $reflectionMethod = new ReflectionMethod($class, $method);
+            
+            $request->controllerMethod = new ReflectionMethod($class, $method);
+            $request->controllerMethodFullName = $handler;
         }
-
-        $request = new RequestContext();
+        
         $request->config = $this->config;
-        $request->controllerMethod = $reflectionMethod;
         $request->requestUri = $uri;
 
         return $request;
-    }
-
-    /**
-     * @param string $handler
-     * @param array $pathParams
-     * @param RequestContext $requestContext
-     * @return Result
-     * @throws RouterConfigurationException
-     */
-    private function processRequest($handler, array &$pathParams, RequestContext $requestContext)
-    {
-        $reflectionMethod = $requestContext->controllerMethod;
-
-        $invokeControllerMethod = function(&$injections) use ($reflectionMethod, &$pathParams) {
-            $controller = $this->instantiateController($reflectionMethod, $injections);
-            $methodArgs = $this->getMethodArgs($reflectionMethod, $pathParams);
-            return $reflectionMethod->invokeArgs($controller, $methodArgs);
-        };
-
-        $interceptorStack = new InterceptorStack($this->interceptors, $requestContext, $invokeControllerMethod);
-        $result = $interceptorStack->next();
-
-        if ($result === null)
-            return Results::nothing();
-
-        if ($result instanceof Result)
-            return $result;
-
-        throw new RouterConfigurationException("Controller method $handler should return an instance of Router\\Result");
-    }
-    
-    /**
-     * @param ReflectionMethod $reflectionMethod
-     * @param array $injections
-     * @return mixed
-     */
-    private function instantiateController(ReflectionMethod $reflectionMethod, array &$injections)
-    {
-        $reflectionClass = $reflectionMethod->getDeclaringClass();
-        $reflectionConstructor = $reflectionClass->getConstructor();
-        $constructorArgs = array();
-
-        if ($reflectionConstructor !== null) {
-            foreach ($reflectionConstructor->getParameters() as $reflectionParam)
-                $constructorArgs[] = $this->getConstructorParamValue($reflectionParam, $injections);
-        }
-
-        return $reflectionClass->newInstanceArgs($constructorArgs);
-    }
-
-    /**
-     * @param ReflectionParameter $reflectionParam
-     * @param array $injections
-     * @return mixed
-     */
-    private function getConstructorParamValue(ReflectionParameter $reflectionParam, array &$injections)
-    {
-        $paramName = $reflectionParam->getName();
-        
-        if (array_key_exists($paramName, $injections))
-            return $injections[$paramName];
-
-        if ($reflectionParam->isDefaultValueAvailable())
-            return $reflectionParam->getDefaultValue();
-
-        return null;
-    }
-    
-    /**
-     * @param ReflectionMethod $reflectionMethod
-     * @param array $pathParams
-     * @return array
-     */
-    private function getMethodArgs(ReflectionMethod $reflectionMethod, array $pathParams)
-    {
-        $methodArgs = [];
-
-        foreach ($reflectionMethod->getParameters() as $reflectionParam) {
-            $methodArgs[] = $this->getParamValue($reflectionParam, $pathParams);
-        }
-        return $methodArgs;
-    }
-
-    /**
-     * @param ReflectionParameter $reflectionParam
-     * @param array $pathParams
-     * @return mixed
-     */
-    private function getParamValue(ReflectionParameter $reflectionParam, array $pathParams)
-    {
-        $paramName = $reflectionParam->getName();
-
-        if (array_key_exists($paramName, $pathParams))
-            return $pathParams[$paramName];
-
-        if (array_key_exists($paramName, $_REQUEST))
-            return $_REQUEST[$paramName];
-
-        if ($reflectionParam->isDefaultValueAvailable())
-            return $reflectionParam->getDefaultValue();
-
-        return null;
     }
 }
 

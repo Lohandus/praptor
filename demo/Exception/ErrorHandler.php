@@ -1,12 +1,15 @@
 <?php
-namespace PRaptorDemo\Security;
+namespace PRaptorDemo\Exception;
 
+use Exception;
 use PRaptor\Router\Interceptor\Interceptor;
 use PRaptor\Router\Interceptor\InterceptorStack;
 use PRaptor\Router\RequestContext;
 use PRaptor\Router\Result\Result;
+use PRaptor\Router\Result\Results;
+use TreklinkDemo\Exception\BusinessException;
 
-class LogInterceptor implements Interceptor
+class ErrorHandler implements Interceptor
 {
     /**
      * @param RequestContext $requestContext
@@ -15,9 +18,11 @@ class LogInterceptor implements Interceptor
      */
     public function intercept(RequestContext $requestContext, InterceptorStack $stack)
     {
-        if ($requestContext->config->devMode)
-            error_log("### Request $requestContext->requestUri > $requestContext->controllerMethodFullName");
-
-        return $stack->next();
+        try {
+            return $stack->next();
+        } catch (Exception $e) {
+            error_log("Internal error: $e");
+            return Results::http('Internal error', 500);
+        }
     }
 }

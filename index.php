@@ -1,8 +1,8 @@
 <?php
 
-use mindplay\annotations\Annotations;
 use PRaptor\Router\Router;
 use PRaptor\Router\RouterConfig;
+use PRaptorDemo\Exception\ErrorHandler;
 use PRaptorDemo\Security\AuthorizationInterceptor;
 use PRaptorDemo\Security\LogInterceptor;
 use PRaptorDemo\Security\PublicAccess;
@@ -11,20 +11,26 @@ require_once 'vendor/autoload.php';
 
 session_start();
 
-Annotations::getManager()->registry['public-access'] = PublicAccess::class;
-
-$controllers = [
-    PRaptorDemo\User\UsersController::class
-];
-
 $config = new RouterConfig();
-$config->baseUrl = 'http://localhost:8080';
-$config->cacheDir = __DIR__ . '/runtime';
+$config->baseUrl     = 'http://localhost:8080';
+$config->cacheDir    = __DIR__ . '/runtime';
 $config->templateDir = __DIR__ . '/demo';
-$config->devMode = true;
+$config->devMode     = true;
 
-$router = new Router($config, $controllers);
+$router = new Router($config);
 
-$router->addInterceptor(new LogInterceptor());
-$router->addInterceptor(new AuthorizationInterceptor());
+$router->registerCustomAnnotations([
+    'public-access' => PublicAccess::class
+]);
+
+$router->setInterceptors([
+    new LogInterceptor(),
+    new ErrorHandler(),
+    new AuthorizationInterceptor()
+]);
+
+$router->setControllerClasses([
+    PRaptorDemo\User\UsersController::class
+]);
+
 $router->dispatch();

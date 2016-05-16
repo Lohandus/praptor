@@ -6,6 +6,7 @@ use PRaptor\Router\Result\JsonResult;
 use PRaptor\Router\Result\Results;
 
 /**
+ * @public-access
  * @controller('path' => '/users')
  */
 class UsersController

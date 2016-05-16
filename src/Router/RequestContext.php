@@ -18,5 +18,10 @@ class RequestContext
     /**
      * @var string
      */
+    public $controllerMethodFullName;
+
+    /**
+     * @var string
+     */
     public $requestUri;
 }
