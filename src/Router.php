@@ -31,6 +31,11 @@ class Router
     private $interceptors = [];
 
     /**
+     * @var callable
+     */
+    private $notFoundHandler;
+
+    /**
      * @param RouterOptions $options
      */
     public function __construct(RouterOptions $options)
@@ -70,7 +75,15 @@ class Router
         foreach (array_keys($annotationClassesByName) as $name)
             $manager->registry[$name] = $annotationClassesByName[$name];
     }
-    
+
+    /**
+     * @param callable $callback
+     */
+    public function setNotFoundHandler(callable $callback)
+    {
+        $this->notFoundHandler = $callback;
+    }
+
     /**
      * @return Dispatcher
      */
@@ -106,7 +119,7 @@ class Router
         switch ($routeInfo[0]) {
             case Dispatcher::NOT_FOUND:
                 $requestContext = $this->buildRequestContext($uri);
-                $result = Results::http("Not Found", 404);
+                $result = $this->handleNotFound($requestContext);
                 break;
 
             case Dispatcher::METHOD_NOT_ALLOWED:
@@ -150,5 +163,23 @@ class Router
         $request->requestUri = $uri;
 
         return $request;
+    }
+
+    /**
+     * @param $requestContext
+     * @return Result
+     */
+    private function handleNotFound($requestContext)
+    {
+        $notFoundHandler = $this->notFoundHandler;
+        $result = null;
+
+        if ($notFoundHandler !== null)
+            $result = $notFoundHandler($requestContext);
+
+        if ($result === null)
+            $result = Results::http("Not Found", 404);
+
+        return $result;
     }
 }
