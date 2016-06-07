@@ -24,11 +24,6 @@ class InterceptorStack
     private $current = 0;
 
     /**
-     * @var array
-     */
-    private $injections = array();
-
-    /**
      * InterceptorStack constructor.
      * @param Interceptor[] $interceptors
      * @param RequestContext $requestContext
@@ -48,28 +43,10 @@ class InterceptorStack
     {
         if ($this->current >= count($this->interceptors)) {
             $callback = $this->callback;
-            return $callback($this->injections);
+            return $callback();
         }
         
         $interceptor = $this->interceptors[$this->current++];
         return $interceptor->intercept($this->requestContext, $this);
-    }
-
-    /**
-     * @param string $varName
-     * @param mixed $value
-     */
-    public function inject($varName, $value)
-    {
-        $this->injections[$varName] = $value;
-    }
-
-    /**
-     * @param string $varName
-     * @return mixed
-     */
-    public function getInjectedValue($varName)
-    {
-        return $this->injections[$varName];
     }
 }

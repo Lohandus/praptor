@@ -35,8 +35,8 @@ class RequestProcessor
     {
         $reflectionMethod = $requestContext->controllerMethod;
 
-        $invokeControllerMethod = function(&$injections) use ($reflectionMethod, &$pathParams) {
-            $controller = $this->instantiateController($reflectionMethod, $injections);
+        $invokeControllerMethod = function() use ($requestContext, $reflectionMethod, &$pathParams) {
+            $controller = $this->instantiateController($reflectionMethod, $requestContext);
             $methodArgs = $this->getMethodArgs($reflectionMethod, $pathParams);
             return $reflectionMethod->invokeArgs($controller, $methodArgs);
         };
@@ -55,10 +55,10 @@ class RequestProcessor
 
     /**
      * @param ReflectionMethod $reflectionMethod
-     * @param array $injections
+     * @param RequestContext $requestContext
      * @return mixed
      */
-    private function instantiateController(ReflectionMethod $reflectionMethod, array &$injections)
+    private function instantiateController(ReflectionMethod $reflectionMethod, $requestContext)
     {
         $reflectionClass = $reflectionMethod->getDeclaringClass();
         $reflectionConstructor = $reflectionClass->getConstructor();
@@ -66,7 +66,7 @@ class RequestProcessor
 
         if ($reflectionConstructor !== null) {
             foreach ($reflectionConstructor->getParameters() as $reflectionParam)
-                $constructorArgs[] = $this->getConstructorParamValue($reflectionParam, $injections);
+                $constructorArgs[] = $this->getConstructorParamValue($reflectionParam, $requestContext);
         }
 
         return $reflectionClass->newInstanceArgs($constructorArgs);
@@ -74,15 +74,15 @@ class RequestProcessor
 
     /**
      * @param ReflectionParameter $reflectionParam
-     * @param array $injections
+     * @param RequestContext $requestContext
      * @return mixed
      */
-    private function getConstructorParamValue(ReflectionParameter $reflectionParam, array &$injections)
+    private function getConstructorParamValue(ReflectionParameter $reflectionParam, $requestContext)
     {
         $paramName = $reflectionParam->getName();
 
-        if (array_key_exists($paramName, $injections))
-            return $injections[$paramName];
+        if ($requestContext->isInjected($paramName))
+            return $requestContext->getInjectedValue($paramName);
 
         if ($reflectionParam->isDefaultValueAvailable())
             return $reflectionParam->getDefaultValue();

@@ -28,6 +28,11 @@ class RequestContext
     public $requestUri;
 
     /**
+     * @var array
+     */
+    private $injections = [];
+
+    /**
      * @param string $mediaType E.g. text/html
      * @return bool
      */
@@ -47,5 +52,29 @@ class RequestContext
     public function isAjax()
     {
         return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
+    }
+
+
+    /**
+     * @param string $varName
+     * @param mixed $value
+     */
+    public function inject($varName, $value)
+    {
+        $this->injections[$varName] = $value;
+    }
+
+    /**
+     * @param string $varName
+     * @return mixed
+     */
+    public function getInjectedValue($varName)
+    {
+        return $this->injections[$varName];
+    }
+    
+    public function isInjected($varName)
+    {
+        return array_key_exists($varName, $this->injections);
     }
 }

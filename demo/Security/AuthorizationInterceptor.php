@@ -24,7 +24,7 @@ class AuthorizationInterceptor implements Interceptor
             return $stack->next();
 
         if (key_exists('loggedInUser', $_SESSION)) {
-            $stack->inject('loggedInUser', $_SESSION['loggedInUser']);
+            $requestContext->inject('loggedInUser', $_SESSION['loggedInUser']);
             return $stack->next();
         }
 

@@ -13,7 +13,6 @@ session_start();
 
 $options = new RouterOptions();
 $options->cacheDir    = __DIR__ . '/runtime';
-$options->templateDir = __DIR__ . '/';
 $options->devMode     = true;
 
 $router = new Router($options);

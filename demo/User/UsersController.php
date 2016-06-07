@@ -25,16 +25,6 @@ class UsersController
     }
 
     /**
-     * @get()
-     */
-    public function listUsers()
-    {
-        return Results::template('User/users-page.html.twig', array(
-            'name' => $this->loggedInUser
-        ));
-    }
-
-    /**
      * @get('path' => '/{id\d}')
      *
      * @param int $id 
