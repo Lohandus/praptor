@@ -1,6 +1,8 @@
 <?php
 namespace PRaptor;
 
+use Twig_ExtensionInterface;
+
 class RouterOptions
 {
     /**
@@ -22,4 +24,9 @@ class RouterOptions
      * @var boolean When true, all caches are disabled.
      */
     public $devMode = false;
+
+    /**
+     * @var Twig_ExtensionInterface[]
+     */
+    public $twigExtensions = null;
 }

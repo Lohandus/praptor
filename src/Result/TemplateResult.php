@@ -52,9 +52,14 @@ class TemplateResult implements Result
     {
         $loader = new Twig_Loader_Filesystem($context->routerOptions->templateDir);
 
-        return new Twig_Environment($loader, array(
+        $twig = new Twig_Environment($loader, array(
             'cache' => $context->routerOptions->cacheDir . '/twig',
             'auto_reload' => $context->routerOptions->devMode
         ));
+        
+        if ($context->routerOptions->twigExtensions !== null)
+            $twig->setExtensions($context->routerOptions->twigExtensions);
+        
+        return $twig;
     }
 }
