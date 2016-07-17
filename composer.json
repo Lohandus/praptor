@@ -1,6 +1,7 @@
 {
   "name": "lohandus/praptor",
   "description": "A tiny MVC framework for PHP inspired by VRaptor",
+  "license": "MIT",
   "require": {
     "php": ">=5.6.0",
     "mindplay/annotations": "^1.3",
