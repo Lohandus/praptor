@@ -38,6 +38,9 @@ class RequestContext
      */
     public function accepts($mediaType)
     {
+        if (!array_key_exists('HTTP_ACCEPT', $_SERVER))
+            return false;
+
         $acceptHeader = new AcceptHeader($_SERVER['HTTP_ACCEPT']);
         foreach ($acceptHeader as $item) {
             if ($item['raw'] == $mediaType)
@@ -51,9 +54,11 @@ class RequestContext
      */
     public function isAjax()
     {
-        return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
-    }
+        if (!array_key_exists('HTTP_X_REQUESTED_WITH', $_SERVER))
+            return false;
 
+        return strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
+    }
 
     /**
      * @param string $varName
